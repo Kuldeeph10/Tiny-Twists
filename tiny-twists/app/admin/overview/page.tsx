@@ -2,6 +2,8 @@ import { createClient } from '../../../lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 
+export const instant = false
+
 async function DashboardData() {
   const supabase = await createClient()
   
