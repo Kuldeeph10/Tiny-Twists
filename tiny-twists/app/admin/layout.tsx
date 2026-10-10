@@ -1,7 +1,7 @@
 import { createClient } from '../../lib/supabase/server'
 import SidebarWrapper from './SidebarWrapper'
 
-export const instant = false
+export const dynamic = 'force-dynamic'
 
 export default async function AdminLayout({
   children,

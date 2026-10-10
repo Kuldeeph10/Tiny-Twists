@@ -13,20 +13,22 @@ export async function addProduct(formData: FormData) {
   const name = formData.get('name') as string
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') + '-' + Math.floor(Math.random() * 1000)
 
-  const imageFile = formData.get('image') as File
-  let imageUrl = ''
+  const imageFiles = formData.getAll('images') as File[]
+  const imageUrls: string[] = []
 
-  if (imageFile && imageFile.size > 0) {
-    const fileExt = imageFile.name.split('.').pop()
-    const fileName = `${slug}-${Date.now()}.${fileExt}`
-    
-    const { error: uploadError } = await supabase.storage
-      .from('product-images')
-      .upload(fileName, imageFile)
+  for (const file of imageFiles) {
+    if (file && file.size > 0) {
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${slug}-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
       
-    if (!uploadError) {
-      const { data } = supabase.storage.from('product-images').getPublicUrl(fileName)
-      imageUrl = data.publicUrl
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(fileName, file)
+        
+      if (!uploadError) {
+        const { data } = supabase.storage.from('product-images').getPublicUrl(fileName)
+        imageUrls.push(data.publicUrl)
+      }
     }
   }
 
@@ -40,7 +42,8 @@ export async function addProduct(formData: FormData) {
     stock: parseInt(formData.get('stock') as string) || 0,
     made_to_order: formData.get('made_to_order') === 'on',
     is_active: true,
-    image_url: imageUrl || null
+    image_url: imageUrls.length > 0 ? imageUrls[0] : null,
+    images: imageUrls
   }
 
   await supabase.from('products').insert([productData])
@@ -71,20 +74,42 @@ export async function editProduct(formData: FormData) {
     made_to_order: formData.get('made_to_order') === 'on',
   }
 
-  // Handle new image upload if they provided one
-  const imageFile = formData.get('image') as File
-  if (imageFile && imageFile.size > 0) {
-    const fileExt = imageFile.name.split('.').pop()
-    const fileName = `updated-${id}-${Date.now()}.${fileExt}`
-    
-    const { error: uploadError } = await supabase.storage
-      .from('product-images')
-      .upload(fileName, imageFile)
+  // Parse the images that the user did not delete
+  let keptImages: string[] = []
+  try {
+    keptImages = JSON.parse((formData.get('kept_images') as string) || '[]')
+  } catch(e) {}
+
+  // Handle new multiple images upload
+  const imageFiles = formData.getAll('images') as File[]
+  const newImageUrls: string[] = []
+
+  for (const file of imageFiles) {
+    if (file && file.size > 0) {
+      const fileExt = file.name.split('.').pop()
+      const fileName = `updated-${id}-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
       
-    if (!uploadError) {
-      const { data } = supabase.storage.from('product-images').getPublicUrl(fileName)
-      updateData.image_url = data.publicUrl
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(fileName, file)
+        
+      if (!uploadError) {
+        const { data } = supabase.storage.from('product-images').getPublicUrl(fileName)
+        newImageUrls.push(data.publicUrl)
+      }
     }
+  }
+  
+  // Combine them!
+  const allImages = [...keptImages, ...newImageUrls]
+  
+  if (allImages.length > 0) {
+    updateData.images = allImages
+    updateData.image_url = allImages[0]
+  } else {
+    // If they deleted everything and uploaded nothing, set to null/empty
+    updateData.images = []
+    updateData.image_url = null
   }
 
   await supabase.from('products').update(updateData).eq('id', id)

@@ -3,7 +3,7 @@ import { addProduct } from '../actions'
 import Link from 'next/link'
 import { Suspense } from 'react'
 
-export const instant = false
+export const dynamic = 'force-dynamic'
 
 async function AddProductForm() {
   const supabase = await createClient()
@@ -38,9 +38,9 @@ async function AddProductForm() {
 
         {/* Image Upload */}
         <div className="p-6 bg-[#FFF8F3] rounded-2xl border border-[var(--brand-yellow)] border-opacity-30">
-          <label className="block text-sm font-bold text-gray-800 mb-2">Product Photo</label>
-          <input name="image" type="file" accept="image/*" className="w-full text-gray-700 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-[var(--brand-yellow)] file:text-gray-900 hover:file:bg-opacity-80 transition cursor-pointer" />
-          <p className="text-xs text-gray-500 mt-2 font-medium">Square images (1:1 ratio) look the best on the storefront!</p>
+          <label className="block text-sm font-bold text-gray-800 mb-2">Upload Photos</label>
+          <input name="images" type="file" accept="image/*" multiple required className="w-full text-gray-700 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-[var(--brand-yellow)] file:text-gray-900 hover:file:bg-opacity-80 transition cursor-pointer" />
+          <p className="text-xs text-gray-500 mt-2 font-medium">You can select multiple images at once. The first image will be the primary cover.</p>
         </div>
 
         {/* Financials & Stock */}

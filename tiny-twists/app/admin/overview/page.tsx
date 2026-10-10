@@ -2,7 +2,7 @@ import { createClient } from '../../../lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 
-export const instant = false
+export const dynamic = 'force-dynamic'
 
 async function DashboardData() {
   const supabase = await createClient()

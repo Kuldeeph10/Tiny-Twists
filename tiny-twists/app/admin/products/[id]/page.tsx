@@ -1,10 +1,11 @@
 import { createClient } from '../../../../lib/supabase/server'
 import { editProduct, deleteProduct, toggleProductStatus } from '../actions'
-import Link from 'next/link'
 import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
+import EditProductImages from '../../../../components/EditProductImages'
 
-export const instant = false
+export const dynamic = 'force-dynamic'
 
 async function EditProductForm({ id }: { id: string }) {
   const supabase = await createClient()
@@ -103,11 +104,7 @@ async function EditProductForm({ id }: { id: string }) {
             <textarea name="description" rows={4} defaultValue={product.description} className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl text-gray-900 font-medium focus:ring-4 focus:ring-[var(--brand-pink)] outline-none transition"></textarea>
           </div>
 
-          <div className="p-6 bg-[#FFF8F3] rounded-2xl border border-[var(--brand-yellow)] border-opacity-30">
-            <label className="block text-sm font-bold text-gray-800 mb-2">Replace Photo (Optional)</label>
-            <input name="image" type="file" accept="image/*" className="w-full text-gray-700 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-[var(--brand-yellow)] file:text-gray-900 hover:file:bg-opacity-80 transition cursor-pointer" />
-            <p className="text-xs text-gray-500 mt-2 font-medium">Leave this blank to keep the current image.</p>
-          </div>
+          <EditProductImages existingImages={product.images || []} />
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div>

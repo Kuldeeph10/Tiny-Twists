@@ -3,7 +3,7 @@ import { toggleProductStatus } from './actions'
 import { Suspense } from 'react'
 import Link from 'next/link'
 
-export const instant = false
+export const dynamic = 'force-dynamic'
 
 async function ProductsList() {
   const supabase = await createClient()

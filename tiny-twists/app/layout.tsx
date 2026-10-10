@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Nunito, Fraunces } from "next/font/google";
 import "./globals.css";
+import { CartProvider } from "../components/CartProvider";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -25,7 +26,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${nunito.variable} ${fraunces.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans">
-        {children}
+        <CartProvider>
+          {children}
+        </CartProvider>
       </body>
     </html>
   );
